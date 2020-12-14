@@ -2,7 +2,6 @@ package cn.cqs.android;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.widget.Toast;
 
 import cn.cqs.baselib.utils.AnyLayerHelper;
 
