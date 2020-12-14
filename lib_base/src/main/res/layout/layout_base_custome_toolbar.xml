@@ -8,7 +8,7 @@
     <ImageView
         android:id="@+id/custom_toolbar_left_img"
         android:layout_width="30dp"
-        android:layout_height="30dp"
+        android:layout_height="18dp"
         android:layout_marginLeft="10dp"
         android:layout_centerVertical="true"
         android:src="@drawable/ic_back"/>

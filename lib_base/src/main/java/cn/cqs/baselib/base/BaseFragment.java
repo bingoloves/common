@@ -1,5 +1,6 @@
 package cn.cqs.baselib.base;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -9,8 +10,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+
+import java.util.List;
+
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
+import cn.cqs.baselib.skin.entity.DynamicAttr;
 import cn.cqs.baselib.skin.listener.IDynamicNewView;
 import cn.cqs.baselib.skin.listener.ISkinUpdate;
 import cn.cqs.baselib.utils.AnyLayerHelper;
@@ -25,12 +30,24 @@ import cn.cqs.baselib.utils.Injector;
  * @UpdateUser: 更新者
  * @UpdateDate: 2020/11/24
  */
-public abstract class BaseFragment extends Fragment implements ISkinUpdate, IDynamicNewView {
+public abstract class BaseFragment extends Fragment implements IDynamicNewView {
     private Unbinder unbinder;
-    protected String mTag = this.getClass().getSimpleName();
+    protected String mFragmentTag = this.getClass().getSimpleName();
     protected View mContentView;
     protected abstract int getLayoutId();
     protected abstract void initView();
+    private IDynamicNewView mIDynamicNewView;
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        try{
+            mIDynamicNewView = (IDynamicNewView)context;
+        }catch(ClassCastException e){
+            mIDynamicNewView = null;
+        }
+    }
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         if(mContentView == null){
@@ -92,5 +109,19 @@ public abstract class BaseFragment extends Fragment implements ISkinUpdate, IDyn
         if (unbinder != null){
             unbinder.unbind();
         }
+    }
+
+    @Override
+    public void dynamicAddView(View view, List<DynamicAttr> pDAttrs) {
+        if(mIDynamicNewView == null){
+            throw new RuntimeException("IDynamicNewView should be implements !");
+        }else{
+            mIDynamicNewView.dynamicAddView(view, pDAttrs);
+        }
+    }
+
+    public LayoutInflater getLayoutInflater(Bundle savedInstanceState) {
+        LayoutInflater result = getActivity().getLayoutInflater();
+        return result;
     }
 }

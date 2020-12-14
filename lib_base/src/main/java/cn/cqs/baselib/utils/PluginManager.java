@@ -33,16 +33,6 @@ public class PluginManager {
     private DexClassLoader mPluginClassLoader;
     private Resources mPluginResources;
 
-//    public static PluginManager getInstance(Context context) {
-//        if (sPluginManager == null) {
-//            synchronized (PluginManager.class) {
-//                if (sPluginManager == null) {
-//                    sPluginManager = new PluginManager(context);
-//                }
-//            }
-//        }
-//        return sPluginManager;
-//    }
     public static PluginManager getInstance() {
         if (sPluginManager == null) {
             synchronized (PluginManager.class) {

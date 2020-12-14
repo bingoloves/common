@@ -7,12 +7,20 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 
 import com.gyf.immersionbar.ImmersionBar;
+
+import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import cn.cqs.baselib.R;
+import cn.cqs.baselib.skin.entity.DynamicAttr;
+import cn.cqs.baselib.skin.listener.IDynamicNewView;
+import cn.cqs.baselib.skin.listener.ISkinUpdate;
+import cn.cqs.baselib.skin.loader.SkinInflaterFactory;
+import cn.cqs.baselib.skin.loader.SkinManager;
 import cn.cqs.baselib.utils.AnyLayerHelper;
 import cn.cqs.baselib.utils.Injector;
 
@@ -25,15 +33,24 @@ import cn.cqs.baselib.utils.Injector;
  * @UpdateUser: 更新者
  * @UpdateDate: 2020/11/25
  */
-public class BaseActivity extends AppCompatActivity {
+public class BaseActivity extends AppCompatActivity implements ISkinUpdate, IDynamicNewView {
     /**
      * 当前Activity
      */
     protected Activity activity;
     private Unbinder unBinder;
     protected Handler mHandler;
+    /**
+     * Whether response to skin changing after create
+     */
+    private boolean isResponseOnSkinChanging = true;
+
+    private SkinInflaterFactory mSkinInflaterFactory;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
+        mSkinInflaterFactory = new SkinInflaterFactory();
+        getLayoutInflater().setFactory(mSkinInflaterFactory);
         super.onCreate(savedInstanceState);
         setActivityEnterAnimation();
         mHandler = new Handler(Looper.getMainLooper());
@@ -49,6 +66,13 @@ public class BaseActivity extends AppCompatActivity {
         //初始化沉浸式
         initImmersionBar();
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        SkinManager.getInstance().attach(this);
+    }
+
     /**
      * 进入动画设置
      */
@@ -107,14 +131,51 @@ public class BaseActivity extends AppCompatActivity {
     @Override
     public void finish() {
         super.finish();
-        mHandler.postDelayed(this::setActivityExitAnimation,isFinishSelf ? 300 : 0);
+        if (isFinishSelf){
+            mHandler.postDelayed(this::setActivityExitAnimation,300);
+        } else {
+            setActivityExitAnimation();
+        }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        SkinManager.getInstance().detach(this);
+        mSkinInflaterFactory.clean();
         if (unBinder != null){
             unBinder.unbind();
         }
+    }
+
+    @Override
+    public void dynamicAddView(View view, List<DynamicAttr> pDAttrs) {
+        mSkinInflaterFactory.dynamicAddSkinEnableView(this, view, pDAttrs);
+    }
+
+    @Override
+    public void onThemeUpdate() {
+        if(!isResponseOnSkinChanging){
+            return;
+        }
+        mSkinInflaterFactory.applySkin();
+    }
+    /**
+     * dynamic add a skin view
+     *
+     * @param view
+     * @param attrName
+     * @param attrValueResId
+     */
+    protected void dynamicAddSkinEnableView(View view, String attrName, int attrValueResId){
+        mSkinInflaterFactory.dynamicAddSkinEnableView(this, view, attrName, attrValueResId);
+    }
+
+    protected void dynamicAddSkinEnableView(View view, List<DynamicAttr> pDAttrs){
+        mSkinInflaterFactory.dynamicAddSkinEnableView(this, view, pDAttrs);
+    }
+
+    final protected void enableResponseOnSkinChanging(boolean enable){
+        isResponseOnSkinChanging = enable;
     }
 }
