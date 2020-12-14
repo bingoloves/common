@@ -1,4 +1,4 @@
-package cn.cqs.baselib.base;
+package cn.cqs.baselib.plugin;
 
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;

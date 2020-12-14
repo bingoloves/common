@@ -6,7 +6,7 @@ import android.content.res.Resources;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 
-import cn.cqs.baselib.core.ServiceInterface;
+import cn.cqs.baselib.plugin.interfaces.ServiceInterface;
 import cn.cqs.baselib.utils.PluginManager;
 
 import static cn.cqs.baselib.proxy.ProxyActivity.EXT_CLASS_NAME;

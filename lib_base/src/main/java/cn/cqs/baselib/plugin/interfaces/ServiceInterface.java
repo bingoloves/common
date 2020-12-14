@@ -1,4 +1,4 @@
-package cn.cqs.baselib.core;
+package cn.cqs.baselib.plugin.interfaces;
 
 import android.app.Service;
 import android.content.Intent;

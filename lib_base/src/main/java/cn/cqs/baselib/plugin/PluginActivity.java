@@ -1,4 +1,4 @@
-package cn.cqs.baselib.base;
+package cn.cqs.baselib.plugin;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -16,7 +16,7 @@ import android.view.inputmethod.InputMethodManager;
 
 import java.util.List;
 
-import cn.cqs.baselib.core.ActivityInterface;
+import cn.cqs.baselib.plugin.interfaces.ActivityInterface;
 import cn.cqs.baselib.skin.entity.DynamicAttr;
 import cn.cqs.baselib.skin.listener.IDynamicNewView;
 import cn.cqs.baselib.skin.listener.ISkinUpdate;

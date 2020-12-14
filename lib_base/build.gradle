@@ -35,12 +35,15 @@ dependencies {
     implementation deps.luban
     implementation deps.mmkv
     implementation deps.autosize
-    api deps.anylayer
     implementation deps.glide
     annotationProcessor deps.glideCompiler
+    implementation deps.butterknife
+    annotationProcessor deps.butterknifeCompiler
     api(deps.rxandroid) {
         exclude module: 'rxjava'
     }
+    api deps.immersionbar
+    api deps.anylayer
     //网络模块
     api deps["retrofit"]
     api deps["retrofit-converter-gson"]
@@ -52,10 +55,10 @@ dependencies {
  *
  * module 里面的资源文件一定要删除光，硬性规定，如果你说资源文件有用。请打aar 包
  */
-def _BASENAME = "CommonJar";
-def _VERSION = "_v1.0.0";
-def _DestinationPath = "build"; //生成jar包的位置
-def zipFile = file('build/intermediates/bundles/debug/classes.jar'); //待打包文件位置
+def _BASENAME = "CommonJar"
+def _VERSION = "_v1.0.0"
+def _DestinationPath = "build" //生成jar包的位置
+def zipFile = file('build/intermediates/bundles/debug/classes.jar') //待打包文件位置
 
 task deleteBuild(type:Delete){
     delete _DestinationPath + _BASENAME + _VERSION + ".jar"

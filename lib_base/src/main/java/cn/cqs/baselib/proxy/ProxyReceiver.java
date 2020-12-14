@@ -4,7 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import cn.cqs.baselib.core.BroadcastReceiverInterface;
+import cn.cqs.baselib.plugin.interfaces.BroadcastReceiverInterface;
 import cn.cqs.baselib.utils.PluginManager;
 
 public class ProxyReceiver extends BroadcastReceiver {

@@ -8,7 +8,7 @@ import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import cn.cqs.baselib.core.ActivityInterface;
+import cn.cqs.baselib.plugin.interfaces.ActivityInterface;
 import cn.cqs.baselib.utils.PluginManager;
 
 public class ProxyActivity extends Activity {

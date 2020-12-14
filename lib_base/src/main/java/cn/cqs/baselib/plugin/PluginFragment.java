@@ -1,4 +1,4 @@
-package cn.cqs.baselib.base;
+package cn.cqs.baselib.plugin;
 
 import android.content.Context;
 import android.os.Bundle;

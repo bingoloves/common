@@ -1,11 +1,11 @@
-package cn.cqs.baselib.base;
+package cn.cqs.baselib.plugin;
 
 import android.annotation.SuppressLint;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
-import cn.cqs.baselib.core.ServiceInterface;
+import cn.cqs.baselib.plugin.interfaces.ServiceInterface;
 
 public class PluginService extends Service implements ServiceInterface {
 
