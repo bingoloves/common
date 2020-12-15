@@ -1,6 +1,25 @@
 apply plugin: 'com.android.library'
+//远程jitpack配置
 apply plugin: 'com.github.dcendents.android-maven'
 group = 'com.github.bingoloves'
+//本地maven仓库配置
+apply plugin: 'maven'
+uploadArchives{
+    repositories.mavenDeployer{
+        //本地仓库路径
+//        repository(url: uri('../repository'))
+        repository(url:"file://F://private/common/repository/")
+        // 唯一标识
+        pom.groupId = "cn.cqs"
+        // 项目名称
+        pom.artifactId = "common"
+        // 版本号
+        pom.version = "1.0.0"
+    }
+    //编译命令 打开Terminal执行下面的命令
+    //gradlew uploadArchives
+}
+
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
     defaultConfig {
@@ -44,14 +63,18 @@ dependencies {
     }
     api deps.immersionbar
     api deps.anylayer
+//    api (deps.anylayer){
+//        transitive = false//是否依赖传递
+//    }
     //网络模块
     api deps["retrofit"]
     api deps["retrofit-converter-gson"]
     api deps["retrofit-adapter-rxjava"]
     api deps["logging-interceptor"]
 }
+
 /**
- * 自定义jar文件
+ * 自定义jar文件 本项目中使用到了内部资源文件，不采用jar方式，改用aar
  *
  * module 里面的资源文件一定要删除光，硬性规定，如果你说资源文件有用。请打aar 包
  */
@@ -70,5 +93,4 @@ task makeJar(type:Jar){
     baseName = _BASENAME + _VERSION
     destinationDir = file(_DestinationPath)
 }
-
 makeJar.dependsOn(deleteBuild, build)

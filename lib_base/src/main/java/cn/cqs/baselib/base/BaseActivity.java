@@ -21,7 +21,7 @@ import cn.cqs.baselib.skin.listener.IDynamicNewView;
 import cn.cqs.baselib.skin.listener.ISkinUpdate;
 import cn.cqs.baselib.skin.loader.SkinInflaterFactory;
 import cn.cqs.baselib.skin.loader.SkinManager;
-import cn.cqs.baselib.utils.AnyLayerHelper;
+import cn.cqs.baselib.utils.AnyLayerUtils;
 import cn.cqs.baselib.utils.Injector;
 
 /**
@@ -91,8 +91,7 @@ public class BaseActivity extends AppCompatActivity implements ISkinUpdate, IDyn
      * @param msg
      */
     protected void toast(String msg){
-        //Toast.makeText(mActivity, msg, Toast.LENGTH_SHORT).show();
-        AnyLayerHelper.showToast(this,msg);
+        AnyLayerUtils.showToast(this,msg);
     }
 
     /**

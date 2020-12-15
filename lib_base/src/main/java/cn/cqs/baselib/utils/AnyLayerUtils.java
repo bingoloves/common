@@ -5,6 +5,7 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SimpleItemAnimator;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -14,11 +15,13 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
 import java.util.List;
 
 import cn.cqs.baselib.R;
 import cn.cqs.baselib.adapter.recyclerview.CommonAdapter;
 import cn.cqs.baselib.adapter.recyclerview.base.ViewHolder;
+import cn.cqs.baselib.bean.PopupMenu;
 import per.goweii.anylayer.Align;
 import per.goweii.anylayer.AnimatorHelper;
 import per.goweii.anylayer.AnyLayer;
@@ -32,79 +35,43 @@ import per.goweii.anylayer.ToastLayer;
  * AnyLayer 通用弹窗的集合
  * @description 此为示例代码，可跟据项目实际需要自定义
  */
+public class AnyLayerUtils {
 
-public class AnyLayerHelper {
     /**
-     * 显示左侧抽屉
-     * @param context
-     * @param layoutId R.layout.xxx
+     * dialog的二次封装
+     * @param dragStyle  可拖拽的模式
+     * @param layoutId    布局Id
+     * @param dataBinder  数据绑定接口
      */
-    public static void showLeftDrawer(Context context,int layoutId){
-        AnyLayer.dialog(context)
+    public static void showDrawDialog(DragLayout.DragStyle dragStyle, int layoutId, Layer.DataBinder dataBinder){
+        int gravity = Gravity.CENTER;
+        switch (dragStyle){
+            case Top:
+                gravity = Gravity.TOP;
+                break;
+            case Bottom:
+                gravity = Gravity.BOTTOM;
+                break;
+            case Left:
+                gravity = Gravity.LEFT;
+                break;
+            case Right:
+                gravity = Gravity.RIGHT;
+                break;
+            case None:
+                gravity = -1;
+                break;
+        }
+        DialogLayer dialogLayer = AnyLayer.dialog()
                 .contentView(layoutId)
+                //是否选择避开状态栏,默认false
+                .avoidStatusBar(false)
                 .backgroundDimDefault()
-//                .asStatusBar(R.id.dialog_drag_h_v)
-                .gravity(Gravity.LEFT)
-                .dragDismiss(DragLayout.DragStyle.Left)
-//                .onClickToDismiss(R.id.dialog_drag_h_tv_close)
-                .show();
-    }
-    /**
-     * 显示右侧抽屉
-     * @param context
-     * @param layoutId R.layout.xxx
-     */
-    public static void showRightDrawer(Context context,int layoutId){
-        AnyLayer.dialog(context)
-                .contentView(layoutId)
-                .backgroundDimDefault()
-//                .asStatusBar(R.id.dialog_drag_h_v)
-                .gravity(Gravity.RIGHT)
-                .dragDismiss(DragLayout.DragStyle.Right)
-//                .onClickToDismiss(R.id.dialog_drag_h_tv_close)
-                .show();
-    }
-    /**
-     * 显示上方抽屉
-     * @param context
-     * @param layoutId R.layout.xxx
-     */
-    public static void showTopDrawer(Context context,int layoutId){
-        AnyLayer.dialog(context)
-                .contentView(layoutId)
-                .backgroundDimDefault()
-                .avoidStatusBar(false)//是否选择避开状态栏,默认false
-//                .asStatusBar(R.id.dialog_drag_h_v)
-                .gravity(Gravity.TOP)
-                .dragDismiss(DragLayout.DragStyle.Top)
-//                .onClickToDismiss(R.id.dialog_drag_h_tv_close)
-                .show();
-    }
-    /**
-     * 显示下方抽屉
-     * @param context
-     * @param layoutId R.layout.xxx
-     */
-    public static void showBottomDrawer(Context context,int layoutId){
-        AnyLayer.dialog(context)
-                .contentView(layoutId)
-                .backgroundDimDefault()
-                .gravity(Gravity.BOTTOM)
-                .dragDismiss(DragLayout.DragStyle.Bottom)
-//                .onClickToDismiss(R.id.dialog_drag_h_tv_close)
-//                .bindData(new Layer.DataBinder() {
-//                    @Override
-//                    public void bindData(@NonNull Layer layer) {
-//                        layer.getView(R.id.tv_dialog_title).setOnLongClickListener(new View.OnLongClickListener() {
-//                            @Override
-//                            public boolean onLongClick(View v) {
-//                                findViewById(R.id.tv_show_top).performClick();
-//                                return false;
-//                            }
-//                        });
-//                    }
-//                })
-                .show();
+                .dragDismiss(dragStyle);
+        //数据绑定 通过Layer.getView()获取View进行数据绑定
+        if (dataBinder != null)dialogLayer.bindData(dataBinder);
+        if (gravity != -1) dialogLayer.gravity(gravity);
+        dialogLayer.show();
     }
     /**
      * 显示默认的不带图标的toast
@@ -131,11 +98,10 @@ public class AnyLayerHelper {
         if (backgroundDrawable != 0){
             toast.backgroundDrawable(backgroundDrawable);
         }
-        //toast.backgroundDrawable(R.drawable.shape_toast_bg);
         toast.message(message)
              .alpha(alpha)
              .gravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL)
-             .marginBottom(dp2px(context,80))
+             .marginBottom(Utils.dip2px(context,80))
              .animator(new Layer.AnimatorCreator() {
                  @Override
                  public Animator createInAnimator(@NonNull View target) {
@@ -150,16 +116,13 @@ public class AnyLayerHelper {
              .show();
         //动态改变部分样式
         LinearLayout linearLayout = toast.getView(R.id.ll_container);
-        linearLayout.setPadding(Utils.dip2px(context,16f),Utils.dip2px(context,6f),Utils.dip2px(context,16f),Utils.dip2px(context,6f));
+        linearLayout.setPadding(Utils.dip2px(context,16f), Utils.dip2px(context,6f), Utils.dip2px(context,16f), Utils.dip2px(context,6f));
         ImageView imageView = toast.getView(R.id.iv_icon);
         ViewGroup.LayoutParams layoutParams = imageView.getLayoutParams();
         layoutParams.width = Utils.dip2px(context,22);
         layoutParams.height = Utils.dip2px(context,22);
     }
-    public static int dp2px(Context context, float dpValue) {
-        final float scale = context.getResources().getDisplayMetrics().density;
-        return (int) (dpValue * scale + 0.5f);
-    }
+
     /**
      * popup
      * @param view
@@ -190,12 +153,67 @@ public class AnyLayerHelper {
             dialogLayer.show();
         }
     }
+
+    /**
+     * popup
+     * @param targetView  当前相对位置View
+     * @param popupMenu  数据源包装类
+     *@param offsetYdp   Y方向的偏移量
+     */
+    public static DialogLayer popupSingleSelect(final View targetView, PopupMenu popupMenu, int offsetYdp, int layoutItem, OnBindViewListener bindViewLisener, AnyLayerUtils.OnPopupClickListener popupClickListener){
+        Context context = targetView.getContext();
+        List<String> menus = popupMenu.getMenusList();
+        View contentView = LayoutInflater.from(context).inflate(R.layout.layout_common_list,null);
+        DialogLayer dialogLayer = AnyLayer.popup(targetView)
+                .align(Align.Direction.VERTICAL, Align.Horizontal.ALIGN_RIGHT, Align.Vertical.BELOW, true)
+                .offsetYdp(offsetYdp)
+                .backgroundDimDefault()
+                .outsideTouchedToDismiss(true)
+                .outsideInterceptTouchEvent(true)
+                .contentView(contentView)
+                .contentAnimator(new DialogLayer.AnimatorCreator() {
+                    @Override
+                    public Animator createInAnimator(@NonNull View content) {
+                        return AnimatorHelper.createTopInAnim(content);
+                    }
+
+                    @Override
+                    public Animator createOutAnimator(@NonNull View content) {
+                        return AnimatorHelper.createTopOutAnim(content);
+                    }
+                });
+        RecyclerView popupRv = contentView.findViewById(R.id.commonRv);
+        popupRv.setLayoutManager(new LinearLayoutManager(context));
+        ((SimpleItemAnimator)popupRv.getItemAnimator()).setSupportsChangeAnimations(false);
+        CommonAdapter adapter = new CommonAdapter<String>(context,layoutItem,menus) {
+            @Override
+            protected void convert(ViewHolder holder, String value, int position) {
+                if (bindViewLisener != null){
+                    bindViewLisener.convert(holder,value,position);
+                }
+                holder.itemView.setOnClickListener(v -> {
+                    if (popupMenu.getIndex() != position){
+                        if (popupMenu.getIndex() != -1)notifyItemChanged(popupMenu.getIndex());
+                        notifyItemChanged(position);
+                    }
+                    popupMenu.setIndex(position);
+                    targetView.postDelayed(() -> {
+                        dialogLayer.dismiss();
+                        if (popupClickListener != null)popupClickListener.onClick(position,value);
+                    },300);
+                });
+            }
+        };
+        popupRv.setAdapter(adapter);
+        return dialogLayer;
+    }
     /**
      * popup
      * @param view       当前相对位置View
      * @param menus      数据集
      * @param offsetYdp  Y方向的偏移量
      * @return
+     * @deprecated
      */
     public static DialogLayer popup(View view, List<String> menus, int offsetYdp, OnPopupClickListener popupClickListener){
         Context context = view.getContext();
@@ -219,7 +237,7 @@ public class AnyLayerHelper {
                 });
         RecyclerView popupRv = contentView.findViewById(R.id.rv_popup_list);
         popupRv.setLayoutManager(new LinearLayoutManager(context));
-        popupRv.setAdapter(new CommonAdapter<String>(context,R.layout.layout_popup_meun_item,menus) {
+        popupRv.setAdapter(new CommonAdapter<String>(context, R.layout.layout_popup_meun_item,menus) {
             @Override
             protected void convert(ViewHolder holder, String o, int position) {
                 holder.setText(R.id.tv_menu,o);
@@ -241,44 +259,19 @@ public class AnyLayerHelper {
      * 加載LoadingView
      */
     public static DialogLayer loading(){
-        DialogLayer dialogLayer = AnyLayer.dialog()
+        return AnyLayer.dialog()
                 .contentView(R.layout.layout_loading_dialog)
                 .outsideTouchedToDismiss(true)
                 .outsideInterceptTouchEvent(false)
                 .backgroundDimDefault();
-        /*dialogLayer.bindData(layer -> {
-            ChrysanthemumView chrysanthemumView = layer.getView(R.id.chrysanthemumView);
-            chrysanthemumView.startAnimation();
-            layer.onDismissListener(new Layer.OnDismissListener() {
-                @Override
-                public void onDismissing(@NonNull Layer layer) {
-
-                }
-
-                @Override
-                public void onDismissed(@NonNull Layer layer) {
-                    chrysanthemumView.stopAnimation();
-                }
-            });
-        });*/
-
-        return dialogLayer;
-    }
-    /**
-     * 不依赖上下文的dialog
-     * @param layoutId
-     */
-    public static void dialog(int layoutId){
-        AnyLayer.dialog()
-                .contentView(layoutId)
-                .backgroundDimDefault()
-//                .onClickToDismiss(R.id.fl_dialog_yes, R.id.fl_dialog_no)
-                .show();
     }
     /**
      * AlertDialog
+     * @param title
+     * @param message
+     * @param onClickListener
      */
-    public static void showAlertDialog(String title,String message,OnClickListener onClickListener){
+    public static void showAlertDialog(String title,String message,View.OnClickListener onClickListener){
         showAlertDialog(title,message,false,onClickListener);
     }
 
@@ -289,7 +282,7 @@ public class AnyLayerHelper {
      * @param singleBtn   是否显示单个按钮
      * @param onClickListener  确认事件
      */
-    public static void showAlertDialog(String title,String message,boolean singleBtn,OnClickListener onClickListener){
+    public static void showAlertDialog(String title,String message,boolean singleBtn,View.OnClickListener onClickListener){
         AnyLayer.dialog()
                 .contentView(R.layout.layout_common_dialog)
                 .backgroundDimDefault()
@@ -319,15 +312,21 @@ public class AnyLayerHelper {
                 .onClickToDismiss(R.id.btn_cancel)
                 .onClick((layer, v) -> {
                     layer.dismiss();
-                    if (onClickListener!=null)onClickListener.onClick();
-                },R.id.btn_ok)
+                    if (onClickListener!=null)onClickListener.onClick(v);
+                }, R.id.btn_ok)
                 .show();
     }
 
-    public interface OnClickListener {
-        void onClick();
-    }
+    /**
+     * Popup点击Item的监听
+     */
     public interface OnPopupClickListener {
         void onClick(int position, String name);
+    }
+    /**
+     * Popup列表数据绑定接口
+     */
+    public interface OnBindViewListener{
+        void convert(ViewHolder holder, String value, int position);
     }
 }

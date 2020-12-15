@@ -24,11 +24,9 @@ allprojects {
         maven { url 'https://www.jitpack.io' }
     }
 }
-
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
-
-tasks.withType(Javadoc) {
-    tasks.getByPath(":lib_base:javadocRelease").enabled = false
-}
+//tasks.withType(Javadoc) {
+//    tasks.getByPath(":lib_base:javadocRelease").enabled = false
+//}

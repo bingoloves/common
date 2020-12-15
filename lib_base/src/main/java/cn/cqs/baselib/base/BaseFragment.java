@@ -9,7 +9,6 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import java.util.List;
 
@@ -17,8 +16,7 @@ import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import cn.cqs.baselib.skin.entity.DynamicAttr;
 import cn.cqs.baselib.skin.listener.IDynamicNewView;
-import cn.cqs.baselib.skin.listener.ISkinUpdate;
-import cn.cqs.baselib.utils.AnyLayerHelper;
+import cn.cqs.baselib.utils.AnyLayerUtils;
 import cn.cqs.baselib.utils.Injector;
 
 /**
@@ -69,7 +67,7 @@ public abstract class BaseFragment extends Fragment implements IDynamicNewView {
      * @param msg
      */
     protected void toast(CharSequence msg){
-        AnyLayerHelper.showToast(getContext(),msg);
+        AnyLayerUtils.showToast(getContext(),msg);
     }
     /**
      * 创建fragment的静态方法，方便传递参数
