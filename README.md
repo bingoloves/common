@@ -13,7 +13,13 @@ Step 1. Add the JitPack repository to your build file
 
 Step 2. Add the dependency
 ```gradle
+android{
+  compileOptions {
+        sourceCompatibility 1.8
+        targetCompatibility 1.8
+    }
+}
 dependencies {
-   implementation 'com.github.bingoloves:common:1.0.3'
+   implementation 'com.github.bingoloves:common:1.0.4'
 }
 ```
