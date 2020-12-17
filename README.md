@@ -20,6 +20,6 @@ android{
     }
 }
 dependencies {
-   implementation 'com.github.bingoloves:common:1.0.4'
+   implementation 'com.github.bingoloves:common:1.0.5'
 }
 ```
