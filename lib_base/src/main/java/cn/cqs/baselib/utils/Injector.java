@@ -13,7 +13,6 @@ import android.text.TextUtils;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 
-import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -26,6 +25,8 @@ import java.util.Map;
 
 /**
  * Created by xesam[416249980@qq.com] on 14-11-25.
+ *  注释了和ButterKnife重合的部分功能，当前版本不使用
+ *  只保留了@Res和@IntentParam的功能
  */
 public class Injector {
 
@@ -158,36 +159,36 @@ public class Injector {
     /**
      * warning android.view.View conflict
      */
-    @Retention(RetentionPolicy.RUNTIME)
-    @Target(ElementType.FIELD)
-    public @interface BindView {
-        int value() default Injector.DEFAULT_INVALID_VIEW_ID;
-    }
+//    @Retention(RetentionPolicy.RUNTIME)
+//    @Target(ElementType.FIELD)
+//    public @interface BindView {
+//        int value() default Injector.DEFAULT_INVALID_VIEW_ID;
+//    }
 
 
-    @Retention(RetentionPolicy.RUNTIME)
-    @Target(ElementType.METHOD)
-    public @interface OnClick {
-        int[] value() default {};
-    }
+//    @Retention(RetentionPolicy.RUNTIME)
+//    @Target(ElementType.METHOD)
+//    public @interface OnClick {
+//        int[] value() default {};
+//    }
 
-    @Retention(RetentionPolicy.RUNTIME)
-    @Target(ElementType.METHOD)
-    public @interface OnLongClick {
-        int[] value() default {};
-    }
+//    @Retention(RetentionPolicy.RUNTIME)
+//    @Target(ElementType.METHOD)
+//    public @interface OnLongClick {
+//        int[] value() default {};
+//    }
 
-    @Retention(RetentionPolicy.RUNTIME)
-    @Target(ElementType.METHOD)
-    public @interface OnItemClick {
-        int[] value() default {};
-    }
+//    @Retention(RetentionPolicy.RUNTIME)
+//    @Target(ElementType.METHOD)
+//    public @interface OnItemClick {
+//        int[] value() default {};
+//    }
 
-    @Retention(RetentionPolicy.RUNTIME)
-    @Target(ElementType.METHOD)
-    public @interface OnItemLongClick {
-        int[] value() default {};
-    }
+//    @Retention(RetentionPolicy.RUNTIME)
+//    @Target(ElementType.METHOD)
+//    public @interface OnItemLongClick {
+//        int[] value() default {};
+//    }
 
     /**
      * 页面传递的Intent中得参数进行注解，自动添值
@@ -376,16 +377,16 @@ public class Injector {
         }
     }
 
-    private static void _injectView(ViewFinder viewFinder, Field field) throws IllegalAccessException, IllegalArgumentException, NoSuchMethodException {
-        BindView _view = field.getAnnotation(BindView.class);
-        if (null == _view) {
-            return;
-        }
-        int viewId = _view.value();
-        android.view.View view = viewFinder.findViewById(viewId);
-        Object receiver = viewFinder.getObject();
-        field.set(receiver, view);
-    }
+//    private static void _injectView(ViewFinder viewFinder, Field field) throws IllegalAccessException, IllegalArgumentException, NoSuchMethodException {
+//        BindView _view = field.getAnnotation(BindView.class);
+//        if (null == _view) {
+//            return;
+//        }
+//        int viewId = _view.value();
+//        android.view.View view = viewFinder.findViewById(viewId);
+//        Object receiver = viewFinder.getObject();
+//        field.set(receiver, view);
+//    }
 
     /**
      * 自动注入Intent数据
@@ -430,35 +431,35 @@ public class Injector {
         }
     }
 
-    private static void injectListener(ViewFinder viewFinder, final Method method) {
-
-        Annotation[] annotations = method.getAnnotations();
-        InjectListener injectListener = new InjectListener(viewFinder.getObject(), method);
-
-        for (Annotation annotation : annotations) {
-            if (annotation.annotationType() == OnClick.class) {
-                int[] viewIds = ((OnClick) annotation).value();
-                for (int _viewId : viewIds) {
-                    viewFinder.findViewById(_viewId).setOnClickListener(injectListener);
-                }
-            } else if (annotation.annotationType() == OnLongClick.class) {
-                int[] viewIds = ((OnLongClick) annotation).value();
-                for (int _viewId : viewIds) {
-                    viewFinder.findViewById(_viewId).setOnLongClickListener(injectListener);
-                }
-            } else if (annotation.annotationType() == OnItemClick.class) {
-                int[] viewIds = ((OnItemClick) annotation).value();
-                for (int _viewId : viewIds) {
-                    ((AdapterView<?>) viewFinder.findViewById(_viewId)).setOnItemClickListener(injectListener);
-                }
-            } else if (annotation.annotationType() == OnItemLongClick.class) {
-                int[] viewIds = ((OnItemLongClick) annotation).value();
-                for (int _viewId : viewIds) {
-                    ((AdapterView<?>) viewFinder.findViewById(_viewId)).setOnItemLongClickListener(injectListener);
-                }
-            }
-        }
-    }
+//    private static void injectListener(ViewFinder viewFinder, final Method method) {
+//
+//        Annotation[] annotations = method.getAnnotations();
+//        InjectListener injectListener = new InjectListener(viewFinder.getObject(), method);
+//
+//        for (Annotation annotation : annotations) {
+//            if (annotation.annotationType() == OnClick.class) {
+//                int[] viewIds = ((OnClick) annotation).value();
+//                for (int _viewId : viewIds) {
+//                    viewFinder.findViewById(_viewId).setOnClickListener(injectListener);
+//                }
+//            } else if (annotation.annotationType() == OnLongClick.class) {
+//                int[] viewIds = ((OnLongClick) annotation).value();
+//                for (int _viewId : viewIds) {
+//                    viewFinder.findViewById(_viewId).setOnLongClickListener(injectListener);
+//                }
+//            } else if (annotation.annotationType() == OnItemClick.class) {
+//                int[] viewIds = ((OnItemClick) annotation).value();
+//                for (int _viewId : viewIds) {
+//                    ((AdapterView<?>) viewFinder.findViewById(_viewId)).setOnItemClickListener(injectListener);
+//                }
+//            } else if (annotation.annotationType() == OnItemLongClick.class) {
+//                int[] viewIds = ((OnItemLongClick) annotation).value();
+//                for (int _viewId : viewIds) {
+//                    ((AdapterView<?>) viewFinder.findViewById(_viewId)).setOnItemLongClickListener(injectListener);
+//                }
+//            }
+//        }
+//    }
 
     private static void inject(ViewFinder viewFinder) {
         Resources res = viewFinder.getResources();
@@ -469,7 +470,7 @@ public class Injector {
             field.setAccessible(true);
             try {
                 _injectRes(viewFinder, res, field);
-                _injectView(viewFinder, field);
+//                _injectView(viewFinder, field);
                 _injectIntent(viewFinder, field);
             } catch (NoSuchMethodException e) {
                 e.printStackTrace();
@@ -480,10 +481,10 @@ public class Injector {
             }
         }
 
-        Method[] methods = viewFinder.getObject().getClass().getDeclaredMethods();
-        for (Method method : methods) {
-            injectListener(viewFinder, method);
-        }
+//        Method[] methods = viewFinder.getObject().getClass().getDeclaredMethods();
+//        for (Method method : methods) {
+//            injectListener(viewFinder, method);
+//        }
     }
 
     public static void inject(android.view.View view) {

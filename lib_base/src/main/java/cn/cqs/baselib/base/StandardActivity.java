@@ -116,8 +116,8 @@ public abstract class StandardActivity extends BaseActivity {
         customToolbar.setTitle(title);
     }
 
-    public CustomToolbar getCustomToolbar() {
-        return customToolbar;
+    public Toolbar getToolbar() {
+        return customToolbar.getToolbar();
     }
 
     /**
