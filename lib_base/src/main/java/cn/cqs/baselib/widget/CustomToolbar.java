@@ -3,410 +3,223 @@ package cn.cqs.baselib.widget;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
-import android.support.v4.app.ActivityCompat;
-import android.text.TextUtils;
+import android.support.annotation.DrawableRes;
+import android.support.annotation.Nullable;
+import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
-
+import com.flyco.tablayout.CommonTabLayout;
+import com.flyco.tablayout.SegmentTabLayout;
+import com.flyco.tablayout.listener.CustomTabEntity;
+import java.util.ArrayList;
 import cn.cqs.baselib.R;
+import cn.cqs.baselib.bean.TabEntity;
 
 /**
  * Created by bingo on 2020/11/11.
  *
  * @Author: bingo
  * @Email: 657952166@qq.com
- * @Description: 通用Toolbar
+ * @Description: 自定义Toolbar
  * @UpdateUser: bingo
  * @UpdateDate: 2020/11/11
  */
-public class CustomToolbar extends RelativeLayout {
-    private ImageView leftImg;
-    private ImageView rightImg;
-    private TextView leftTitleTv;
-    private TextView leftSubTitleTv;
-    private TextView centerTitleTv;
-    private TextView rightTitleTv;
-    private View baseLineView;
-    private Context context;
-
+public class CustomToolbar extends FrameLayout {
+    private Toolbar mToolbar;
+    private TextView mTitleTv;
+    private SegmentTabLayout mSegmentTabLayout;
+    private CommonTabLayout mCommonTabLayout;
+    private ImageView mBackIv;
+    private ImageView mCloseIv;
+    private ImageView mMoreIv;
+    private TextView mMoreTextTv;
+    //标题相关的
     private Drawable mLeftIcon;
-    private String mTitleText,mLeftText;
-    private int mTitleTextColor,mDividerColor;
+    private String mTitleText;
+    private int mTitleTextColor;
     private int mTitleTextSize;
+    /**
+     * 提供外部接口
+     */
+    private View.OnClickListener onBackClickListener;
+    private View.OnClickListener onMenuClickListener;
+
     public CustomToolbar(Context context) {
-        this(context, null);
+        super(context);
+        initView(context,null);
     }
 
-    public CustomToolbar(Context context, AttributeSet attrs) {
-        this(context, attrs, 0);
+    public CustomToolbar(Context context, @Nullable AttributeSet attrs) {
+        super(context, attrs);
+        initView(context,attrs);
     }
 
-    public CustomToolbar(Context context, AttributeSet attrs, int defStyleAttr) {
+    public CustomToolbar(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        initView(context,attrs,defStyleAttr);
+        initView(context,attrs);
     }
 
-    private void initView(Context context, AttributeSet attrs, int defStyleAttr) {
-        this.context = context;
-        View view = LayoutInflater.from(context).inflate(R.layout.layout_base_custome_toolbar, this);
-        leftImg = (ImageView) view.findViewById(R.id.custom_toolbar_left_img);
-        rightImg = (ImageView) view.findViewById(R.id.custom_toolbar_right_img);
-        leftTitleTv = (TextView) view.findViewById(R.id.custom_toolbar_left_title_tv);
-        leftSubTitleTv = (TextView) view.findViewById(R.id.custom_toolbar_left_subTitle_tv);
-        centerTitleTv = (TextView) view.findViewById(R.id.custom_toolbar_center_title_tv);
-        rightTitleTv = (TextView) view.findViewById(R.id.custom_toolbar_right_title_tv);
-        baseLineView = (View) view.findViewById(R.id.custom_toolbar_baseline_view);
+    private void initView(Context context, AttributeSet attrs) {
+        LayoutInflater.from(context).inflate(R.layout.toolbar, this);
         if (attrs != null){
-            TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.CustomToolbar, defStyleAttr, 0);
+            TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.CustomToolbar);
             if (typedArray != null) {
-                mLeftIcon = typedArray.getDrawable(R.styleable.CustomToolbar_leftIcon);
-                mLeftText = typedArray.getString(R.styleable.CustomToolbar_leftText);
+                mLeftIcon = typedArray.getDrawable(R.styleable.CustomToolbar_left_icon);
                 mTitleText = typedArray.getString(R.styleable.CustomToolbar_title);
-                mTitleTextColor = typedArray.getColor(R.styleable.CustomToolbar_titleTextColor, Color.BLACK);
-                mDividerColor = typedArray.getColor(R.styleable.CustomToolbar_dividerColor, Color.parseColor("#F0F0F0"));
-                mTitleTextSize = typedArray.getDimensionPixelSize(R.styleable.CustomToolbar_titleTextSize, 16);
+                mTitleTextColor = typedArray.getColor(R.styleable.CustomToolbar_title_text_color, Color.WHITE);
+                mTitleTextSize = typedArray.getDimensionPixelSize(R.styleable.CustomToolbar_title_text_size, 16);
                 typedArray.recycle();
             }
         }
-        init();
-    }
-
-    public void init() {
-        leftImg.setVisibility(GONE);
-        rightImg.setVisibility(GONE);
-        leftTitleTv.setVisibility(GONE);
-        leftSubTitleTv.setVisibility(GONE);
-        centerTitleTv.setVisibility(GONE);
-        rightTitleTv.setVisibility(GONE);
-        baseLineView.setVisibility(GONE);
+        mToolbar = findViewById(R.id.toolbar);
+        mTitleTv = findViewById(R.id.toolbar_title);
+        mSegmentTabLayout = findViewById(R.id.toolbar_segment_tabLayout);
+        mCommonTabLayout = findViewById(R.id.toolbar_common_tabLayout);
+        mBackIv = findViewById(R.id.toolbar_back);
+        mCloseIv = findViewById(R.id.toolbar_close);
+        mMoreIv = findViewById(R.id.toolbar_more);
+        mMoreTextTv = findViewById(R.id.toolbar_more_text);
+        //返回键处理
+        mBackIv.setOnClickListener(backClickListener);
+        mCloseIv.setOnClickListener(backClickListener);
+        mMoreIv.setOnClickListener(menuClickListener);
+        mMoreTextTv.setOnClickListener(menuClickListener);
+        //初始化相关数据
         if (mLeftIcon != null){
-            leftImg.setVisibility(VISIBLE);
-            leftImg.setImageDrawable(mLeftIcon);
+            mBackIv.setImageDrawable(mLeftIcon);
         }
-        if (!TextUtils.isEmpty(mLeftText)){
-            setLeftSubTitle(mLeftText);
+        if (mTitleText != null){
+            mTitleTv.setText(mTitleText);
         }
-        if (!TextUtils.isEmpty(mTitleText)){
-            setCenterTitle(mTitleText,mTitleTextColor,mTitleTextSize,null);
-        }
+        mTitleTv.setTextColor(mTitleTextColor);
+        mTitleTv.setTextSize(mTitleTextSize);
+        mCommonTabLayout.setTextsize(mTitleTextSize);
+        mSegmentTabLayout.setTextsize(mTitleTextSize);
     }
 
-    public void back(OnClickListener listener) {
-        leftImg.setVisibility(VISIBLE);
-        leftImg.setOnClickListener(listener);
-    }
 
     /**
-     * 设置左边按钮背景
-     *
-     * @param resId
+     * 返回按钮监听
      */
-    public void setLeftImage(int resId) {
-        setLeftImage(resId, null);
-    }
-
-    /**
-     * 设置左边按钮背景，并设置点击事件
-     *
-     * @param resId
-     * @param clickListener
-     */
-    public void setLeftImage(int resId, OnClickListener clickListener) {
-        if (leftImg != null) {
-            leftImg.setVisibility(VISIBLE);
-            if (clickListener != null) {
-                leftImg.setOnClickListener(clickListener);
-            }
-            if (resId != -1) {
-                leftImg.setImageResource(resId);
+    private View.OnClickListener backClickListener = v -> {
+        int id = v.getId();
+        if (id == R.id.toolbar_back || id == R.id.toolbar_close){
+            if (onBackClickListener != null){
+                onBackClickListener.onClick(v);
             }
         }
-
-    }
-
+    };
     /**
-     * 设置右边按钮背景
-     *
-     * @param resId
+     * 右侧按钮的事件
      */
-    public void setRightImage(int resId) {
-        setRightImage(resId, null);
-
-    }
-
-    /**
-     * 设置右边按钮背景，并设置点击事件
-     *
-     * @param resId
-     * @param clickListener
-     */
-    public void setRightImage(int resId, OnClickListener clickListener) {
-        if (rightImg != null) {
-            rightImg.setVisibility(VISIBLE);
-            if (clickListener != null) {
-                rightImg.setOnClickListener(clickListener);
-            }
-            if (resId != -1) {
-                rightImg.setImageResource(resId);
+    private View.OnClickListener menuClickListener = v -> {
+        int id = v.getId();
+        if (id == R.id.toolbar_more || id == R.id.toolbar_more_text){
+            if (onMenuClickListener != null){
+                onMenuClickListener.onClick(v);
             }
         }
-
-    }
-
-
-    /**
-     * 设置左边文字
-     *
-     * @param title
-     */
-    public void setLeftTitle(String title) {
-        setLeftTitle(title, null, null, null);
-    }
-
+//        switch (v.getId()){
+//            case R.id.toolbar_more:
+//            case R.id.toolbar_more_text:
+//                if (onMenuClickListener != null){
+//                    onMenuClickListener.onClick(v);
+//                }
+//                break;
+//            default:
+//                break;
+//        }
+    };
 
     /**
-     * 设置左边文字
-     *
-     * @param title
+     * 设置分段头部
      */
-    public void setLeftTitle(String title, Typeface tf) {
-        setLeftTitle(title, null, null, tf);
+    public void setSegmentTabTitle(String[] titles){
+        mSegmentTabLayout.setTabData(titles);
+        mSegmentTabLayout.setVisibility(View.VISIBLE);
+        mCommonTabLayout.setVisibility(View.GONE);
+        mTitleTv.setVisibility(View.GONE);
     }
-
-
     /**
-     * 设置左边文字
-     *
-     * @param title
+     * 设置通用Tab头部
      */
-    public void setLeftTitle(String title, OnClickListener listener) {
-        setLeftTitle(title, null, listener, null);
-    }
-
-
-    /**
-     * 设置左边文字
-     *
-     * @param title
-     */
-    public void setLeftTitle(String title, String colorRes) {
-        setLeftTitle(title, colorRes, null, null);
-    }
-
-
-    /**
-     * 设置左边文字并设置点击事件
-     *
-     * @param title
-     * @param clickListener
-     */
-    public void setLeftTitle(String title, String colorRes, OnClickListener clickListener, Typeface tf) {
-        if (!TextUtils.isEmpty(title)) {
-            if (leftTitleTv != null) {
-                leftTitleTv.setVisibility(VISIBLE);
-                leftTitleTv.setText(title);
-                if (clickListener != null) {
-                    leftTitleTv.setOnClickListener(clickListener);
-                }
-                if (!TextUtils.isEmpty(colorRes)) {
-                    leftTitleTv.setTextColor(Color.parseColor(colorRes));
-                }
-
-                if (tf != null) {
-                    leftTitleTv.setTypeface(tf);
-                }
-            }
-
+    public void setCommonTabTitle(String[] titles){
+        ArrayList<CustomTabEntity> mTabEntities = new ArrayList<>();
+        for (int i = 0; i < titles.length; i++) {
+            mTabEntities.add(new TabEntity(titles[i], 0,0));
         }
+        mCommonTabLayout.setTabData(mTabEntities);
+        mCommonTabLayout.setVisibility(View.VISIBLE);
+        mSegmentTabLayout.setVisibility(View.GONE);
+        mTitleTv.setVisibility(View.GONE);
     }
 
     /**
-     * 设置左边文字
-     *
+     * 设置标准文本头部
      * @param title
      */
-    public void setLeftSubTitle(String title) {
-        setLeftSubTitle(title, null, null);
+    public void setTitle(CharSequence title) {
+        mTitleTv.setText(title);
+    }
+    public void hideBackIcon(){
+        mBackIv.setVisibility(GONE);
+    }
+    public void setBackIcon(@DrawableRes int resId){
+        mBackIv.setImageResource(resId);
+    }
+    public void setMenuIcon(@DrawableRes int resId){
+        mMoreIv.setImageResource(resId);
+    }
+    public void setMenuText(String value){
+        mMoreTextTv.setText(value);
     }
 
-
-    /**
-     * 设置左边文字
-     *
-     * @param title
-     */
-    public void setLeftSubTitle(String title, OnClickListener listener) {
-        setLeftSubTitle(title, null, listener);
+    public Toolbar getToolbar() {
+        return mToolbar;
     }
 
-
-    /**
-     * 设置左边文字
-     *
-     * @param title
-     */
-    public void setLeftSubTitle(String title, String colorRes) {
-        setLeftSubTitle(title, colorRes, null);
+    public SegmentTabLayout getSegmentTabLayout() {
+        return mSegmentTabLayout;
     }
 
-
-    /**
-     * 设置左边文字并设置点击事件
-     *
-     * @param title
-     * @param clickListener
-     */
-    public void setLeftSubTitle(String title, String colorRes, OnClickListener clickListener) {
-        if (!TextUtils.isEmpty(title)) {
-            if (leftSubTitleTv != null) {
-                leftSubTitleTv.setVisibility(VISIBLE);
-                leftSubTitleTv.setText(title);
-                if (clickListener != null) {
-                    leftSubTitleTv.setOnClickListener(clickListener);
-                }
-                if (!TextUtils.isEmpty(colorRes)) {
-                    leftSubTitleTv.setTextColor(Color.parseColor(colorRes));
-                }
-            }
-        }
+    public CommonTabLayout getCommonTabLayout() {
+        return mCommonTabLayout;
     }
 
-    /**
-     * 设置中间文字
-     *
-     * @param title
-     */
-    public void setCenterTitle(String title) {
-        setCenterTitle(title, null, null);
+    public TextView getTitleTextView() {
+        return mTitleTv;
+    }
+
+    public ImageView getBackImageView() {
+        return mBackIv;
+    }
+
+    public ImageView getCloseImageView() {
+        return mCloseIv;
+    }
+
+    public ImageView getMenuImageView() {
+        return mMoreIv;
+    }
+
+    public TextView getMenuTextView() {
+        return mMoreTextTv;
     }
 
     /**
-     * 设置中间文字
-     *
-     * @param title
+     * 外部接口
+     * @param onBackClickListener
      */
-    public void setCenterTitle(String title, OnClickListener listener) {
-        setCenterTitle(title, null, listener);
+    public void setOnBackClickListener(View.OnClickListener onBackClickListener) {
+        this.onBackClickListener = onBackClickListener;
     }
 
-    /**
-     * 设置中间文字
-     *
-     * @param title
-     */
-    public void setCenterTitle(String title, String color) {
-        setCenterTitle(title, color, null);
-    }
-
-    /**
-     * 设置中间文字并设置点击事件
-     *
-     * @param title
-     * @param clickListener
-     */
-    public void setCenterTitle(String title, int color,int textSize, OnClickListener clickListener) {
-        if (!TextUtils.isEmpty(title)) {
-            if (centerTitleTv != null) {
-                centerTitleTv.setVisibility(VISIBLE);
-                centerTitleTv.setText(title);
-                centerTitleTv.setTextSize(textSize);
-                centerTitleTv.setTextColor(color);
-                if (clickListener != null) {
-                    centerTitleTv.setOnClickListener(clickListener);
-                }
-            }
-        }
-    }
-    /**
-     * 设置中间文字并设置点击事件
-     *
-     * @param title
-     * @param clickListener
-     */
-    public void setCenterTitle(String title, String colorRes, OnClickListener clickListener) {
-        if (!TextUtils.isEmpty(title)) {
-            if (centerTitleTv != null) {
-                centerTitleTv.setVisibility(VISIBLE);
-                centerTitleTv.setText(title);
-                centerTitleTv.setTextSize(mTitleTextSize);
-                if (clickListener != null) {
-                    centerTitleTv.setOnClickListener(clickListener);
-                }
-                if (!TextUtils.isEmpty(colorRes)) {
-                    centerTitleTv.setTextColor(Color.parseColor(colorRes));
-                }
-            }
-        }
-    }
-    /**
-     * 设置颜色
-     * @param color
-     */
-    public void setCenterTitleColor(int color){
-        if (centerTitleTv != null) {
-            centerTitleTv.setTextColor(ActivityCompat.getColor(context, color));
-        }
-    }
-
-    /**
-     * 设置右边文字
-     *
-     * @param title
-     */
-    public void setRightTitle(String title) {
-        setRightTitle(title, null, null);
-    }
-
-    /**
-     * 设置右边文字
-     *
-     * @param title
-     */
-    public void setRightTitle(String title, OnClickListener listener) {
-        setRightTitle(title, null, listener);
-    }
-
-    /**
-     * 设置右边文字
-     *
-     * @param title
-     */
-    public void setRightTitle(String title, String colorRes) {
-        setRightTitle(title, colorRes, null);
-    }
-
-
-    /**
-     * 设置右边文字并设置点击事件
-     *
-     * @param title
-     * @param clickListener
-     */
-    public void setRightTitle(String title, String colorRes, OnClickListener clickListener) {
-        if (!TextUtils.isEmpty(title)) {
-            if (rightTitleTv != null) {
-                rightTitleTv.setVisibility(VISIBLE);
-                rightTitleTv.setText(title);
-                if (clickListener != null) {
-                    rightTitleTv.setOnClickListener(clickListener);
-                }
-                if (!TextUtils.isEmpty(colorRes)) {
-                    rightTitleTv.setTextColor(Color.parseColor(colorRes));
-                }
-            }
-
-        }
-    }
-
-    public void showBaseLine() {
-        if (baseLineView != null) {
-            baseLineView.setVisibility(VISIBLE);
-        }
+    public void setOnMenuClickListener(View.OnClickListener menuClickListener) {
+        this.onMenuClickListener = menuClickListener;
     }
 }

@@ -276,15 +276,28 @@
         <attr name="pv_spread_anim_time" format="integer"></attr>
         <attr name="pv_host_text_anim_time" format="integer"></attr>
     </declare-styleable>
-    <!--自定义ToolBar-->
-    <declare-styleable name="CustomToolbar">
-        <attr name="leftIcon" format="reference" />
-        <attr name="leftText" format="string" />
-        <attr name="title" format="string" />
-        <attr name="titleTextSize" format="dimension" />
-        <attr name="titleTextColor" format="color" />
-        <attr name="dividerColor" format="color" />
+    <!--自定义标题栏的通用属性-->
+    <attr name="left_icon" format="reference" />
+    <attr name="title" format="string" />
+    <attr name="title_text_size" format="dimension" />
+    <attr name="title_text_color" format="color" />
+    <!--自定义TitleBar-->
+    <declare-styleable name="TitleBar">
+        <attr name="left_text" format="string" />
+        <attr name="left_icon"/>
+        <attr name="title"/>
+        <attr name="title_text_size"/>
+        <attr name="title_text_color"/>
+        <attr name="divider_color" format="color" />
     </declare-styleable>
+    <!--自定义Toolbar-->
+    <declare-styleable name="CustomToolbar">
+        <attr name="left_icon"/>
+        <attr name="title"/>
+        <attr name="title_text_size"/>
+        <attr name="title_text_color"/>
+    </declare-styleable>
+    <!---->
     <declare-styleable name="HrLayout">
         <attr name="defaultHeight" format="dimension"></attr>
         <attr name="realHeight" format="dimension"></attr>

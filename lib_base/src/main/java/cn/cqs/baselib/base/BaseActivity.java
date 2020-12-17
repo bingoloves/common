@@ -38,7 +38,7 @@ public class BaseActivity extends AppCompatActivity implements ISkinUpdate, IDyn
      * 当前Activity
      */
     protected Activity activity;
-    private Unbinder unBinder;
+    protected Unbinder unBinder;
     protected Handler mHandler;
     /**
      * Whether response to skin changing after create
@@ -60,7 +60,7 @@ public class BaseActivity extends AppCompatActivity implements ISkinUpdate, IDyn
     @Override
     public void setContentView(int layoutResID) {
         super.setContentView(layoutResID);
-        unBinder = ButterKnife.bind(this);
+        initButterKnife();
         //注入工具
         Injector.inject(this);
         //初始化沉浸式
@@ -136,7 +136,9 @@ public class BaseActivity extends AppCompatActivity implements ISkinUpdate, IDyn
             setActivityExitAnimation();
         }
     }
-
+    protected void initButterKnife(){
+        unBinder = ButterKnife.bind(this);
+    }
     @Override
     protected void onDestroy() {
         super.onDestroy();

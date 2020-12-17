@@ -55,12 +55,14 @@ dependencies {
     implementation deps.mmkv
     implementation deps.autosize
     implementation deps.glide
+
     annotationProcessor deps.glideCompiler
     implementation deps.butterknife
     annotationProcessor deps.butterknifeCompiler
     api(deps.rxandroid) {
         exclude module: 'rxjava'
     }
+    api deps.flycoTabLayout
     api deps.immersionbar
     api deps.anylayer
 //    api (deps.anylayer){
