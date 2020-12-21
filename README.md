@@ -20,6 +20,12 @@ android{
     }
 }
 dependencies {
-   implementation 'com.github.bingoloves:common:1.0.5'
+   implementation 'com.github.bingoloves:common:1.0.7'
 }
 ```
+#### 更新日志记录
+
+`2020-12-21 14:22:27` **v1.0.7**
+* 优化网络请求HttpConfig,使其可配置 
+* 新增请求响应统一拦截接口
+* 修复子线程网络请求bug
