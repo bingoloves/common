@@ -34,10 +34,6 @@ public abstract class StandardActivity extends BaseActivity {
 
     protected CustomToolbar customToolbar;
     /**
-     * 中间容器
-     */
-    private FrameLayout mContainer;
-    /**
      * 提供外部接口
      */
     private View.OnClickListener onBackClickListener;
@@ -57,9 +53,9 @@ public abstract class StandardActivity extends BaseActivity {
     }
     private void initRootView() {
         //当前的容器
-        mContainer = findViewById(R.id.content_container);
+        FrameLayout centerContainer = findViewById(R.id.content_container);
         if (getContentViewId() != 0){
-            getLayoutInflater().inflate(getContentViewId(), mContainer);
+            getLayoutInflater().inflate(getContentViewId(), centerContainer);
             unBinder = ButterKnife.bind(this);
         }
         customToolbar = findViewById(R.id.custom_toolbar);

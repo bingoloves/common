@@ -13,10 +13,10 @@ public class TokenInterceptor implements Interceptor {
     @Override
     public Response intercept(Chain chain) throws IOException {
         Request request = chain.request();
-        String token = MMKVHelper.decodeString(ApiService.TOKEN);
+        String tokenKey = HttpConfig.getHttpConfig().getToken();
+        String token = MMKVHelper.decodeString(tokenKey);
         if (!TextUtils.isEmpty(token)){
-            //LogUtils.e(token);
-            Request updateRequest = request.newBuilder().header(ApiService.TOKEN, token).build();
+            Request updateRequest = request.newBuilder().header(tokenKey, token).build();
             return chain.proceed(updateRequest);
         }
         return chain.proceed(request);

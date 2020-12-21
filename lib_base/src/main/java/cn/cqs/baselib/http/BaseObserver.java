@@ -1,38 +1,54 @@
 package cn.cqs.baselib.http;
 
-import android.app.ProgressDialog;
-import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
+
 import org.json.JSONException;
+
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.text.ParseException;
-import java.util.List;
 
-import cn.cqs.baselib.utils.Utils;
+import cn.cqs.baselib.utils.AnyLayerUtils;
+import cn.cqs.baselib.utils.log.LogUtils;
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
+import per.goweii.anylayer.DialogLayer;
 import retrofit2.HttpException;
 
 /**
- * 针对普通对象
- * @param <T>
+ * 优化处理通用观察者，将数据统一处理逻辑已接口的形式供外部处理
+ * @param <T>:原始对象
  */
 public abstract class BaseObserver<T> implements Observer<T> {
 
     private Disposable d;
-    private ProgressDialog loading;
-    private Handler handler;
-    //持续时间最小2000ms保证体验效果
-    private static final int MIN_TIME = 2000;
+    private DialogLayer loading;
+    //持续时间最小1500ms保证体验效果
+    private static final int MIN_TIME = 1500;
     private long startTime = 0;
     //是否显示加载框
     private boolean showLoading = false;
     //是否等待加载
     private boolean isWaitLoading = false;
+    /**
+     * 主线程Handler,主要负责加载框的UI显示
+     */
+    private Handler mainHandler;
 
-    public BaseObserver() {}
+    /**
+     * 数据响应接口
+     * <p>
+     *     doneAfter:只负责响应拦截类型
+     * </p>
+     */
+    private ResponseListener mResponseListener;
+
+    public abstract void onSuccess(T data);
+
+    public abstract void onFailure(String error);
+
+    public BaseObserver() { }
 
     public BaseObserver(boolean showLoading) {
         this.showLoading = showLoading;
@@ -42,73 +58,116 @@ public abstract class BaseObserver<T> implements Observer<T> {
         this.showLoading = showLoading;
         this.isWaitLoading = isWaitLoading;
     }
+
+    /**
+     * 订阅在执行请求的线程中，执行的结果回调却是在主线程中
+     * @param d
+     */
     @Override
     public void onSubscribe(Disposable d) {
         this.d = d;
-        Context context = Utils.getApp();
         if (loading == null){
-            loading = new ProgressDialog(context);
+            loading = AnyLayerUtils.loading();
         }
         if (isWaitLoading){
-            loading.setCanceledOnTouchOutside(false);
+            loading.cancelableOnTouchOutside(false);
+            loading.cancelableOnClickKeyBack(false);
         }
-        if (showLoading)loading.show();
-        handler = new Handler(Looper.getMainLooper());
+        mainHandler = getMainHandler();
+        if (showLoading){
+            mainHandler.post(() -> loading.show());
+        }
         startTime = System.currentTimeMillis();
+        mResponseListener = HttpConfig.getHttpConfig().getResponseListener();
     }
 
     @Override
     public void onNext(final T data) {
-        if (data instanceof BaseResponse){
-            BaseResponse response =  (BaseResponse) data;
-            Object object = response.getData();
-            if (object != null){
-                int code = response.getCode();
-                String msg = response.getMsg();
-                handleResponse(code,data,msg);
+        if (mResponseListener != null) {
+            ResponseResult responseResult = mResponseListener.handle(data);
+            if (responseResult == null){
+                handleDialogEvent(() -> {
+                    hideDialog();
+                    onSuccess(data);
+                });
             } else {
-              onFailure("数据异常");
+                int type = responseResult.type;
+                switch (type){
+                    case ResponseResult.TYPE_ERROR:
+                    case ResponseResult.TYPE_PASS:
+                        handleDialogEvent(() -> {
+                            hideDialog();
+                            if (type == ResponseResult.TYPE_ERROR){
+                                onFailure(responseResult.msg);
+                            } else {
+                                onSuccess(data);
+                            }
+                        });
+                        break;
+                    case ResponseResult.TYPE_INTERCEPT://拦截状态,外部处理，这里只负责关闭当前请求,将处理方式用接口抛出
+                        mainHandler.postDelayed(() -> mResponseListener.doneAfter(responseResult.code),500);
+                        break;
+                    default:
+                        break;
+                }
             }
-        } else if (data instanceof BaseListResponse){
-            BaseListResponse response =  (BaseListResponse) data;
-            List responseData = response.getData();
-            if (responseData != null){
-                int code = response.getCode();
-                String msg = response.getMsg();
-                handleResponse(code,data,msg);
-            } else {
-                onFailure("数据异常");
-            }
+        } else {
+            handleDialogEvent(() -> {
+                hideDialog();
+                onSuccess(data);
+            });
         }
+//        if (data instanceof BaseResponse){
+//            BaseResponse response =  (BaseResponse) data;
+//            Object object = response.getData();
+//            if (object != null){
+//                int code = response.getCode();
+//                String msg = response.getMsg();
+//                handleResponse(code,data,msg);
+//            } else {
+//              onFailure("数据异常");
+//            }
+//        } else if (data instanceof BaseListResponse){
+//            BaseListResponse response =  (BaseListResponse) data;
+//            List responseData = response.getData();
+//            if (responseData != null){
+//                int code = response.getCode();
+//                String msg = response.getMsg();
+//                handleResponse(code,data,msg);
+//            } else {
+//                onFailure("数据异常");
+//            }
+//        }
     }
 
     /**
      * 统一数据处理
-     * @param code
-     * @param data
-     * @param msg
      */
-    private void handleResponse(int code, T data, String msg){
-        if (code == 1){
-            hideDialog();
-            onSuccess(data);
-        } else if (code == 0){
-            hideDialog();
-            onFailure(msg);
-        } else {
-//            Activity topActivity = ActivityStackManager.getStackManager().currentActivity();
-//            if (topActivity != null && !"cn.cncqs.zc.activity.LoginActivity".equals(topActivity.getClass().getCanonicalName())){
-//                Intent intent = new Intent(topActivity,LoginActivity.class);
-//                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-//                topActivity.startActivity(intent);
-//            }
-        }
-    }
+//    private void handleResponse(int code, T data, String msg){
+//        if (code == 1){
+//            hideDialog();
+//            onSuccess(data);
+//        } else if (code == 0){
+//            hideDialog();
+//            onFailure(msg);
+//        } else {
+////            Activity topActivity = ActivityStackManager.getStackManager().currentActivity();
+////            if (topActivity != null && !"cn.cncqs.zc.activity.LoginActivity".equals(topActivity.getClass().getCanonicalName())){
+////                Intent intent = new Intent(topActivity,LoginActivity.class);
+////                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+////                topActivity.startActivity(intent);
+////            }
+//        }
+//    }
+
+    /**
+     * 进入到onError 不会进入到 onComplete
+     * @param e
+     */
     @Override
     public void onError(final Throwable e) {
-        onFailure(exceptionHandler(e));
-        hideDialog();
         onComplete();
+        onFailure(exceptionHandler(e));
     }
 
     @Override
@@ -119,17 +178,6 @@ public abstract class BaseObserver<T> implements Observer<T> {
         handleDialogEvent(this::hideDialog);
     }
 
-    public abstract void onSuccess(T data);
-
-    public abstract void onFailure(String err);
-
-    /**
-     * 本地网络不可用时异常,会回调这个方法
-     */
-    public void onNetworkError(){
-         hideDialog();
-     }
-
     /**
      * 处理dialog 显示效果
      */
@@ -137,9 +185,9 @@ public abstract class BaseObserver<T> implements Observer<T> {
          long endTime = System.currentTimeMillis();
          long timeDiff = endTime - startTime;
          if (timeDiff > MIN_TIME){
-             handler.post(runnable);
+             mainHandler.post(runnable);
          } else {
-             handler.postDelayed(runnable,MIN_TIME - timeDiff);
+             mainHandler.postDelayed(runnable,MIN_TIME - timeDiff);
          }
     }
 
@@ -147,10 +195,11 @@ public abstract class BaseObserver<T> implements Observer<T> {
      * 隐藏dialog
      */
     private void hideDialog(){
-        if (loading != null && loading.isShowing()){
+        if (loading != null && loading.isShow()){
             loading.dismiss();
         }
     }
+
     /**
      * 异常处理
      * @param e
@@ -183,5 +232,20 @@ public abstract class BaseObserver<T> implements Observer<T> {
             msg = httpException.message();
         }
         return msg;
+    }
+    /**
+     * 判断是否是主线程
+     * @return
+     */
+    public boolean isMainThread() {
+        return Looper.getMainLooper().getThread() == Thread.currentThread();
+    }
+
+    /**
+     * 获取主线程handler
+     * @return
+     */
+    public Handler getMainHandler(){
+        return new Handler(Looper.getMainLooper());
     }
 }

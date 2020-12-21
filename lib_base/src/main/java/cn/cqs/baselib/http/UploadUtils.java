@@ -2,6 +2,7 @@ package cn.cqs.baselib.http;
 
 import android.content.Context;
 import android.os.AsyncTask;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -81,7 +82,7 @@ public class UploadUtils {
             protected void onPostExecute(List<File> files) {
                 super.onPostExecute(files);
                 List<MultipartBody.Part> images = filesToMultipartBodyParts(files);
-                RetrofitUtil.get().getApiService()
+                RetrofitUtil.getApiService()
                         .uploadImages(images)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
@@ -96,15 +97,9 @@ public class UploadUtils {
      * @param file   写入的目标文件
      * @param downloadListener 下载监听
      */
-    public static void download(String url,File file,DownloadListener downloadListener){
-        OkHttpClient.Builder builder = RetrofitUtil.get().getBuilder().addInterceptor(new DownloadInterceptor(downloadListener));
-        OkHttpClient client = builder.build();
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(ApiService.BASE_URL)
-                .client(client)
-                .addConverterFactory(GsonConverterFactory.create())
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .build();
+    public static void download(final String url,File file,DownloadListener downloadListener){
+        OkHttpClient client = HttpConfig.getHttpConfig().getOkHttpClient(new DownloadInterceptor(downloadListener));
+        Retrofit retrofit = HttpConfig.getHttpConfig().getRetrofit(HttpConfig.getHttpConfig().getBaseUrl(), client);
         retrofit.create(ApiService.class)
                 .download(url)
                 .subscribeOn(Schedulers.io())

@@ -89,4 +89,12 @@ public class AppExecutors {
             mainThreadHandler.post(command);
         }
     }
+
+    /**
+     * 判断是否是主线程
+     * @return
+     */
+    public static boolean isMainThread() {
+        return Looper.getMainLooper().getThread() == Thread.currentThread();
+    }
 }

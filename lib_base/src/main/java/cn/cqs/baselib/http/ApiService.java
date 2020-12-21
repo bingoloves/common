@@ -14,12 +14,6 @@ import retrofit2.http.Streaming;
 import retrofit2.http.Url;
 
 public interface ApiService {
-    /**
-     * 请填写项目的域名地址
-     */
-    String HOST = "";
-    String BASE_URL = HOST + "/";
-    String TOKEN = "token";
      /********************************* 示例代码 ****************************************/
     @GET("http://v.juhe.cn/toutiao/index?key=238ca532342eb15fb820f1f7fe08c2d6")
     Observable<BaseResponse> testApi(@Query("type") String type);
@@ -39,7 +33,7 @@ public interface ApiService {
      * @return
      */
     @Multipart
-    @POST(Api.UPLOAD)
+    @POST("/api/uploads/trace")
     Observable<BaseResponse<UploadBean>> uploadImages(@Part() List<MultipartBody.Part> files);
 
     /**
