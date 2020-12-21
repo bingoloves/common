@@ -47,7 +47,7 @@ public class ResponseResult {
      * 处理拦截时
      * @param msg
      */
-    public ResponseResult(@Type int type,int code, String msg) {
+    public ResponseResult(@ResponseResult.Type int type,int code, String msg) {
         this.type = type;
         this.code = code;
         this.msg = msg;

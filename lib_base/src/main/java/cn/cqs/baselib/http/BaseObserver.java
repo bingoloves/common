@@ -91,7 +91,7 @@ public abstract class BaseObserver<T> implements Observer<T> {
                     onSuccess(data);
                 });
             } else {
-                int type = responseResult.type;
+                @ResponseResult.Type int type = responseResult.type;
                 switch (type){
                     case ResponseResult.TYPE_ERROR:
                     case ResponseResult.TYPE_PASS:

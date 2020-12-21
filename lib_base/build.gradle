@@ -14,7 +14,7 @@ uploadArchives{
         // 项目名称
         pom.artifactId = "common"
         // 版本号
-        pom.version = "1.0.3"
+        pom.version = "1.0.1"
     }
     //编译命令 打开Terminal执行下面的命令 或者 在gradle视图中相应模块下Tasks->upload->uploadArchives
     //gradlew uploadArchives
@@ -49,6 +49,7 @@ dependencies {
     def deps = rootProject.ext.dependencies
     implementation deps.appcompat
     implementation deps.palette
+    implementation deps.annotations
     implementation deps.recyclerview
     implementation deps.design
     implementation deps.luban
